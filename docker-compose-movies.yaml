@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+  postgres14:
+    container_name: postgres14
+    image: postgres:14-alpine
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_PASSWORD: sasa
+      POSTGRES_DB: movies_db
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+  movies-service:
+    container_name: movies-service
+    image: ksuasnabar/movies:latest
+#    build:
+#      context: ./
+#      dockerfile: ./Dockerfile
+    ports:
+      - "8040:8040"
+    environment:
+      PORT: 8040
+      DB_HOST: postgres14:5432
+      DB_DATABASE: movies_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: sasa
+    networks:
+      - spring
+    depends_on:
+      - postgres14
+    restart: always
+
+
+volumes:
+  data-postgres:
+    name: data-postgres
+
+networks:
+  spring:
+    external: true
+
+#services:
+#  dev:
+#    image: postgres:latest
+#    restart: always
+#    container_name: my_container_name
+#    hostname: myhost
+#    environment:
+#      POSTGRES_DB: movies_db
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: admin
+#    volumes:
+#      - D:/java/postgres-volumes/moviesappdata1:/var/lib/postgresql/data
+#      - ./src/main/resources/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql
+#      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql
+#    ports:
+#      - "5432:5432"
